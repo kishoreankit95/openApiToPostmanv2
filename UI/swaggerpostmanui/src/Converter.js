@@ -4,7 +4,6 @@ import axios from 'axios';
 const Converter = () => {
 
     const [file, setFile] = useState(null);
-    const [downloadLink, setDownloadLink] = useState(null);
 
     const handleFileChange = (event) => {
         setFile(event.target.files[0]);
