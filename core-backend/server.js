@@ -24,9 +24,7 @@ app.post('/convert', upload.single('file'), (req, res) => {
     const inputFile = path.join(__dirname, req.file.path);
     const outputFile = path.join(__dirname, 'postman-collection.json');
     try{
-        const openApiSpec = fs.readFileSync(inputFile, 'utf8');
-    
-    
+        const openApiSpec = fs.readFileSync(inputFile, 'utf8');   
 
         converter.convert({type: 'string', data: openApiSpec}, {}, (err, result) => {
             // Clean up uploaded file
