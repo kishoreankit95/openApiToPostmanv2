@@ -17,19 +17,49 @@ const upload = multer({dest: 'uploads/'});
 app.use(cors(corsOptions)); //Enabling CORS
 
 app.post('/convert', upload.single('file'), (req, res) => {
-    const inputFile = path.join(__dirname, req.file.path);
-    const openApiSpec = fs.readFileSync(inputFile, 'utf8');
+    if (!req.file) {
+        return res.status(400).send('No file uploaded.');
+    }
 
-    converter.convert({type: 'string', data: openApiSpec}, {}, (err, result) => {
-        if(err || !result.result){
-            res.status(500).send('Conversion failed: ' + (result.reason || err));
-        }
-        else{
-            const outputFile = path.join(__dirname, 'postman-collection.json');
+    const inputFile = path.join(__dirname, req.file.path);
+    const outputFile = path.join(__dirname, 'postman-collection.json');
+    try{
+        const openApiSpec = fs.readFileSync(inputFile, 'utf8');
+    
+    
+
+        converter.convert({type: 'string', data: openApiSpec}, {}, (err, result) => {
+            // Clean up uploaded file
+            if (fs.existsSync(inputFile)) {
+                fs.unlinkSync(inputFile);
+            }
+
+            if(err || !result.result){
+            return res.status(500).send('Conversion failed: ' + (result.reason || err));
+            }
+            
             fs.writeFileSync(outputFile, JSON.stringify(result.output[0].data, null, 2));
-            res.download(outputFile, 'postman-collection.json');
+            res.download(outputFile, 'postman-collection.json', (downloadErr) => {
+                // Clean up generated output file
+                fs.unlink(outputFile, (unlinkErr) => {
+                    if (unlinkErr) console.error('Error deleting output file:', unlinkErr);
+                });
+
+                if (downloadErr) {
+                    console.error('Download error:', downloadErr);
+                }
+            });
+            
+        });
+    }
+    catch(error){
+        // Clean up uploaded file if error occurred
+        if (fs.existsSync(inputFile)) {
+            fs.unlinkSync(inputFile);
         }
-    });
+        console.error('Error processing file:', error);
+        res.status(500).send('Server error');
+    }
 });
 
 app.listen(3001, () => {
