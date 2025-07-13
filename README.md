@@ -31,5 +31,5 @@ This is a full-stack application that allows users to upload an OpenAPI specific
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/openapi-to-postman-converter.git
-cd openapi-to-postman-converter
+git clone https://github.com/kishoreankit95/openApiToPostmanv2.git
+cd openapi-to-postman-converterv2
